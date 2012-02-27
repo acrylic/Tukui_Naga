@@ -149,4 +149,4 @@ end
 
 -- Add Tukui Naga into Tukz's /moveui
 placeNaga()
-table.insert(T.MoverFrames, NagaAnchor)
+table.insert(T.AllowFrameMoving, NagaAnchor)
