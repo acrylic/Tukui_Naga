@@ -1,3 +1,9 @@
+-- Tukui_Naga
+-- An Alternative to the default action bar that mimics the buttons on the Razer Naga
+--
+-- https://github.com/acrylic/Tukui_Naga
+-- original edit by tweetix
+
 local T, C, L, G = unpack(Tukui)
 
 if not C["actionbar"].enable == true then return end
@@ -79,8 +85,6 @@ nagaBar:SetScript("OnEvent", function(self, event, unit, ...)
 				TukuiBar2Button:Hide()
 				TukuiBar3Button:Hide()
 				TukuiBar4Button:Hide()
-				TukuiBar5ButtonTop:Hide()
-				TukuiBar5ButtonBottom:Hide()
 				self.inVehicle = true
 			end
 		else
@@ -88,8 +92,6 @@ nagaBar:SetScript("OnEvent", function(self, event, unit, ...)
 				TukuiBar2Button:Show()
 				TukuiBar3Button:Show()
 				TukuiBar4Button:Show()
-				TukuiBar5ButtonTop:Show()
-				TukuiBar5ButtonBottom:Show()
 				self.inVehicle = false
 			end
 		end
@@ -129,6 +131,11 @@ for i= 1, 12 do
         b:SetPoint("LEFT", b2, "RIGHT", T.buttonspacing, 0)
     end
 end
-TukuiBar5:Kill()
+
+-- hide the TukuiBar5 frame, and the toggle buttons for pets.
+RegisterStateDriver( TukuiBar5, "visibility", "hide")
+TukuiLineToPetActionBarBackground:Hide()
+TukuiBar5ButtonTop:Hide()
+TukuiBar5ButtonBottom:Hide()
 
 table.insert(T.AllowFrameMoving, NagaAnchor)
