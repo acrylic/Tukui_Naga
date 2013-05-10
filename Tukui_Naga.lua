@@ -100,6 +100,9 @@ nagaBar:SetScript("OnEvent", function(self, event, unit, ...)
 	end
 end)
 
+-- hide during pet battles
+RegisterStateDriver( nagaFrame, "visibility", "[petbattle] hide; show" );
+
 -- Move Bar 4 down into Bar 1's place.
 MultiBarLeft:SetParent(TukuiBar1)
 for i= 1, 12 do

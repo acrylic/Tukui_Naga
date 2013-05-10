@@ -1,7 +1,7 @@
-## Interface: 50001
+## Interface: 50200
 ## Title: |cffC495DDTukui|r Naga Bar
 ## Notes: An alternative to the default action bar
 ## Author: Acrylic
-## Version: 1.1.4
+## Version: 1.1.5
 ## RequiredDeps: Tukui
 Tukui_Naga.lua
