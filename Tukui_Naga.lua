@@ -3,142 +3,91 @@
 --
 -- https://github.com/acrylic/Tukui_Naga
 -- original edit by tweetix
+local TG, TC, TL = Tukui:unpack()
 
-local T, C, L, G = unpack(Tukui)
+if not TC["ActionBars"].Enable == true then return end
 
-if not C["actionbar"].enable == true then return end
+local Size = TC['ActionBars']['NormalButtonSize']
+local Spacing = TC['ActionBars']['ButtonSpacing']
+local Num = NUM_ACTIONBAR_BUTTONS
+local Movers = TG["Movers"]
 
--- some local sizes
-local nagaWidth = (T.buttonsize * 3) + (T.buttonspacing * 4)
-local nagaHeight = (T.buttonsize * 4) + (T.buttonspacing * 5)
-
--- create the anchor for the mover
-local anchor = CreateFrame("Button", "NagaAnchor", UIParent)
-anchor:SetAlpha(0)
-anchor:SetTemplate()
-anchor:SetBackdropBorderColor(1, 0, 0, 1)
-anchor:SetMovable(true)
-anchor:SetHeight(20)
-anchor:SetWidth(nagaWidth)
-anchor.text = T.SetFontString(anchor, C["media"].uffont, 12)
-anchor.text:SetPoint("CENTER")
-anchor.text:SetText("Naga bar")
-anchor.text.Show = function() anchor:SetAlpha(1) end
-anchor.text.Hide = function() anchor:SetAlpha(0) end
-anchor:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-
--- container for the buttons
-local nagaFrame = CreateFrame("Frame", "NagaFrame", UIParent)
-nagaFrame:SetTemplate()
-nagaFrame:SetWidth(nagaWidth)
-nagaFrame:SetHeight(nagaHeight)
-nagaFrame:SetPoint("BOTTOM", anchor, "TOP", 0, 3)
-nagaFrame:SetFrameLevel(2)
-nagaFrame:SetFrameStrata("BACKGROUND")
+-- frame
+local NagaFrame = CreateFrame("Frame", "NagaFrame", UIParent, "SecureHandlerStateTemplate")
+NagaFrame:SetTemplate()
+NagaFrame:SetWidth((Size * 3) + (Spacing * 4))
+NagaFrame:SetHeight((Size * 4) + (Spacing * 5))
+NagaFrame:SetPoint("CENTER", UIParent, 0, 0)
+NagaFrame:SetFrameStrata("BACKGROUND")
+NagaFrame:SetFrameLevel(2)
+NagaFrame.Backdrop = CreateFrame("Frame", nil, NagaFrame)
+NagaFrame.Backdrop:SetAllPoints()
 
 -- buttons
-local nagaBar = CreateFrame("Frame", "NagaBar", NagaFrame)
-nagaBar:SetAllPoints(NagaFrame)
+local NagaBar = CreateFrame("Frame", "NagaBar", NagaFrame, "SecureHandlerStateTemplate")
+NagaBar:SetAllPoints(NagaFrame)
 
--- bind events, and apply the buttons
--- run the same stuff as on modules/actionbars/bar1.lua
-nagaBar:RegisterEvent("PLAYER_LOGIN")
-nagaBar:RegisterEvent("PLAYER_ENTERING_WORLD")
-nagaBar:RegisterEvent("KNOWN_CURRENCY_TYPES_UPDATE")
-nagaBar:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
-nagaBar:RegisterEvent("BAG_UPDATE")
-nagaBar:RegisterEvent("UPDATE_VEHICLE_ACTIONBAR")
-nagaBar:RegisterEvent("UPDATE_OVERRIDE_ACTIONBAR")
-nagaBar:SetScript("OnEvent", function(self, event, unit, ...)
-	if event == "PLAYER_LOGIN" or event == "ACTIVE_TALENT_GROUP_CHANGED" then
-		local button
-		for i = 1, NUM_ACTIONBAR_BUTTONS do
-			button = _G["ActionButton"..i]
-			G.ActionBars.Bar1["Button"..i] = button
-		end	
-	elseif event == "PLAYER_ENTERING_WORLD" then
-		local button
-		for i = 1, 12 do
-			button = _G["ActionButton"..i]
-			button:SetSize(T.buttonsize, T.buttonsize)
-			button:ClearAllPoints()
-			button:SetParent(nagaBar)
-			button:SetFrameStrata("BACKGROUND")
-			button:SetFrameLevel(15)
-			
-            if i == 1 then
-                button:SetPoint("TOPLEFT", nagaBar, "TOPLEFT", T.Scale(4), T.Scale(-4))
-            elseif i == 4 then
-                button:SetPoint("TOP", ActionButton1, "BOTTOM", 0, T.Scale(-4))
-            elseif i == 7 then
-                button:SetPoint("TOP", ActionButton4, "BOTTOM", 0, T.Scale(-4))
-            elseif i == 10 then
-                button:SetPoint("TOP", ActionButton7, "BOTTOM", 0, T.Scale(-4))
-            else
-                local previous = _G["ActionButton"..i-1]
-				button:SetPoint("LEFT", previous, "RIGHT", T.buttonspacing, 0)
-            end
-		end
-	elseif event == "UPDATE_VEHICLE_ACTIONBAR" or event == "UPDATE_OVERRIDE_ACTIONBAR" then
-		if HasVehicleActionBar() or HasOverrideActionBar() then
-			if not self.inVehicle then
-				TukuiBar2Button:Hide()
-				TukuiBar3Button:Hide()
-				TukuiBar4Button:Hide()
-				self.inVehicle = true
-			end
-		else
-			if self.inVehicle then
-				TukuiBar2Button:Show()
-				TukuiBar3Button:Show()
-				TukuiBar4Button:Show()
-				self.inVehicle = false
+hooksecurefunc( TG['ActionBars'], 'CreateBar1', function()
+	TG['Panels']['ActionBar1']:HookScript( 'OnEvent', function( self, event, unit, ... )
+		if( event == 'PLAYER_ENTERING_WORLD' ) then
+                        local Button, Previous
+                        
+                        for i = 1, NUM_ACTIONBAR_BUTTONS do
+                                Button = TG['Panels']['ActionBar1']['Button' .. i]
+                                Previous = TG['Panels']['ActionBar1']['Button' .. i-1]
+                                
+                                Button:ClearAllPoints()
+                                Button:SetParent( NagaBar )
+                                Button:Size( Size, Size )
+                                Button:SetFrameStrata("BACKGROUND")
+                                Button:SetFrameLevel(15)
+                                
+                                if i == 1 then
+                                    Button:SetPoint("TOPLEFT", NagaBar, "TOPLEFT", Spacing, -Spacing)
+                                elseif i == 4 then
+                                    Button:SetPoint("TOP", TG['Panels']['ActionBar1']['Button1'], "BOTTOM", 0, -Spacing)
+                                elseif i == 7 then
+                                    Button:SetPoint("TOP", TG['Panels']['ActionBar1']['Button4'], "BOTTOM", 0, -Spacing)
+                                elseif i == 10 then
+                                    Button:SetPoint("TOP", TG['Panels']['ActionBar1']['Button7'], "BOTTOM", 0, -Spacing)
+                                else
+                                    Button:SetPoint("LEFT", Previous, "RIGHT", Spacing, 0)
+                                end
 			end
 		end
-	else
-		MainMenuBar_OnEvent(self, event, ...)
-	end
-end)
+	end )
+end )
 
 -- hide during pet battles
-RegisterStateDriver( nagaFrame, "visibility", "[petbattle] hide; show" );
+RegisterStateDriver( NagaFrame, "visibility", "[petbattle] hide; show" );
 
--- Move Bar 4 down into Bar 1's place.
-MultiBarLeft:SetParent(TukuiBar1)
-for i= 1, 12 do
-    local b = _G["MultiBarLeftButton"..i]
-    local b2 = _G["MultiBarLeftButton"..i-1]
-    b:SetSize(T.buttonsize, T.buttonsize)
-    b:ClearAllPoints()
-    b:SetFrameStrata("BACKGROUND")
-    b:SetFrameLevel(15)
-    if i == 1 then
-        b:SetPoint("BOTTOMLEFT", TukuiBar1, T.buttonspacing, T.buttonspacing)
-    else
-        b:SetPoint("LEFT", b2, "RIGHT", T.buttonspacing, 0)
+-- move MultiBarRight to bar 1's place
+hooksecurefunc( TG['ActionBars'], 'CreateBar5', function()
+    local Anchor = TG['Panels']['ActionBar1']
+    Anchor:SetAlpha(1)
+    MultiBarLeft:SetParent( Anchor )
+    
+    local Button, Previous
+    
+    for i = 1, 12 do
+        Button = TG['Panels']['ActionBar5']['Button' .. i]
+        Previous = TG['Panels']['ActionBar5']['Button' .. i - 1]
+        
+        Button:ClearAllPoints()
+        Button:Size( Size, Size )
+        Button:SetFrameStrata( 'BACKGROUND' )
+        Button:SetFrameLevel( 15 )
+        
+        if i == 1 then
+            Button:SetPoint( 'TOPLEFT', Anchor, 'TOPLEFT', Spacing, -Spacing)
+        else
+            Button:SetPoint( 'LEFT', Previous, "RIGHT", Spacing, 0)
+        end
     end
-end
-
--- Move Bar 5 across into Bar 4's place.
-MultiBarRight:SetParent(TukuiBar4)
-for i= 1, 12 do
-    local b = _G["MultiBarRightButton"..i]
-    local b2 = _G["MultiBarRightButton"..i-1]
-    b:SetSize(T.buttonsize, T.buttonsize)
-    b:ClearAllPoints()
-    b:SetFrameStrata("BACKGROUND")
-    b:SetFrameLevel(15)
-    if i == 1 then
-        b:SetPoint("TOPLEFT", TukuiBar4, T.buttonspacing, -T.buttonspacing)
-    else
-        b:SetPoint("LEFT", b2, "RIGHT", T.buttonspacing, 0)
-    end
-end
+    
+    -- hide TukuiActionBar5
+    TG['Panels']['ActionBar5']:SetAlpha(0)
+end )
 
 -- hide the TukuiBar5 frame, and the toggle buttons for pets.
-RegisterStateDriver( TukuiBar5, "visibility", "hide")
-TukuiLineToPetActionBarBackground:Hide()
-TukuiBar5ButtonTop:Hide()
-TukuiBar5ButtonBottom:Hide()
-
-table.insert(T.AllowFrameMoving, NagaAnchor)
+Movers:RegisterFrame( NagaFrame )
